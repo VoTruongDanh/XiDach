@@ -7,6 +7,18 @@ A modern, elegant scorekeeper application for Blackjack (Xi Dách) games. Built 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite)
 
+---
+
+<div align="center">
+
+### 🌐 [**LIVE DEMO**](https://xi-dach.vercel.app/) 🌐
+
+**Try it now:** [https://xi-dach.vercel.app/](https://xi-dach.vercel.app/)
+
+</div>
+
+---
+
 ## ✨ Features
 
 - 🎯 **Multi-Table Management** - Create and manage multiple game sessions simultaneously
