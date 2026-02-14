@@ -3,7 +3,7 @@ import { useGame } from '../contexts/GameContext';
 import { Layout } from './Layout';
 import { Plus, Trash2, Play, Calendar, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '../lib/utils';
+
 
 export const Dashboard: React.FC<{ onCreateNew: () => void }> = ({ onCreateNew }) => {
     const { state, dispatch } = useGame();

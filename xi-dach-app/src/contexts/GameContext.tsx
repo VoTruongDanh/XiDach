@@ -19,12 +19,7 @@ const initialState: GameState = {
     history: [],
 };
 
-// --- Helper: Calculate Scores ---
-const calculatePlayerScore = (playerId: string, transactions: Transaction[]): number => {
-    return transactions
-        .filter(t => t.playerId === playerId)
-        .reduce((sum, t) => sum + t.amount, 0);
-};
+
 
 // --- Reducer ---
 function gameReducer(state: GameState, action: Action): GameState {

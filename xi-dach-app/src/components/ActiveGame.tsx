@@ -6,7 +6,7 @@ import { Plus, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ActiveGame: React.FC = () => {
-    const { state, dispatch, activeSession } = useGame();
+    const { dispatch, activeSession } = useGame();
     const [showAddPlayer, setShowAddPlayer] = useState(false);
     const [newPlayerName, setNewPlayerName] = useState('');
 
