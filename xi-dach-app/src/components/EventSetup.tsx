@@ -64,7 +64,7 @@ export const EventSetup: React.FC<EventSetupProps> = ({ onCancel, hasHistory }) 
                             type="text"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
-                            placeholder="e.g. Lunar New Year 2026"
+                            placeholder="Lam làm cái nha !"
                             className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/50 transition-all text-lg"
                             autoFocus
                         />
@@ -72,12 +72,12 @@ export const EventSetup: React.FC<EventSetupProps> = ({ onCancel, hasHistory }) 
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                            <Users size={16} /> Initial Players (1 name per line)
+                            <Users size={16} /> Danh sách người chơi (Mỗi tên 1 dòng)
                         </label>
                         <textarea
                             value={initialPlayers}
                             onChange={(e) => setInitialPlayers(e.target.value)}
-                            placeholder="Tuan&#10;Huy&#10;Lan"
+                            placeholder="Danh&#10;Lan&#10;Minh"
                             className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/50 transition-all min-h-[150px] leading-relaxed"
                         />
                     </div>
