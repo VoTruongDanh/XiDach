@@ -1,73 +1,143 @@
-# React + TypeScript + Vite
+# 🎴 Xi Dách - Blackjack Scorekeeper
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, elegant scorekeeper application for Blackjack (Xi Dách) games. Built with React, TypeScript, and Tailwind CSS, featuring a luxurious dark theme and seamless multi-table management.
 
-Currently, two official plugins are available:
+![Xi Dách Banner](https://img.shields.io/badge/Xi%20D%C3%A1ch-Scorekeeper-gold?style=for-the-badge)
+![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- 🎯 **Multi-Table Management** - Create and manage multiple game sessions simultaneously
+- 💾 **Auto-Save** - All game data persists in browser LocalStorage
+- 📱 **Mobile-First Design** - Optimized 2-column layout for mobile devices
+- 🎨 **Dark Luxury Theme** - Glassmorphism UI with smooth animations
+- ⚡ **Real-time Updates** - Instant score tracking with visual feedback
+- 🔄 **Session Switching** - Seamlessly switch between active tables
+- 🗑️ **Easy Cleanup** - Delete old game sessions with one click
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Quick Start
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+ and npm
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Clone the repository
+git clone https://github.com/VoTruongDanh/XiDach.git
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Navigate to the app directory
+cd XiDach/xi-dach-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+The production-ready files will be in the `dist/` directory.
+
+## 📦 Deployment
+
+### Vercel (Recommended)
+
+1. Install Vercel CLI:
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Deploy:
+   ```bash
+   vercel
+   ```
+
+### Netlify
+
+1. Build the project:
+   ```bash
+   npm run build
+   ```
+
+2. Drag and drop the `dist/` folder to [Netlify Drop](https://app.netlify.com/drop)
+
+For detailed deployment instructions, see [DEPLOY.md](../DEPLOY.md)
+
+## 🎮 Usage
+
+1. **Create a Table**: Click "New Table" and enter table name and player names
+2. **Track Scores**: Use +/- buttons or custom input to update scores
+3. **Switch Tables**: Return to dashboard to view all active tables
+4. **Resume Games**: Click any table card to continue playing
+5. **Clean Up**: Delete finished tables using the trash icon
+
+## 🛠️ Tech Stack
+
+- **Framework**: React 18.3 with TypeScript
+- **Build Tool**: Vite 6.0
+- **Styling**: Tailwind CSS 3.4
+- **Animations**: Framer Motion 11.15
+- **Icons**: Lucide React 0.468
+- **State Management**: React Context + useReducer
+- **Storage**: Browser LocalStorage
+
+## 📁 Project Structure
+
+```
+xi-dach-app/
+├── src/
+│   ├── components/
+│   │   ├── ActiveGame.tsx      # Main game interface
+│   │   ├── Dashboard.tsx       # Table list & management
+│   │   ├── EventSetup.tsx      # New table creation
+│   │   ├── PlayerCard.tsx      # Player score card
+│   │   └── Layout.tsx          # App layout wrapper
+│   ├── contexts/
+│   │   └── GameContext.tsx     # Global state management
+│   ├── types/
+│   │   └── index.ts            # TypeScript interfaces
+│   ├── lib/
+│   │   └── utils.ts            # Utility functions
+│   ├── App.tsx                 # Main app component
+│   └── main.tsx                # App entry point
+├── public/                     # Static assets
+└── package.json
+```
+
+## 🎨 Design System
+
+- **Primary Color**: Gold (#eab308)
+- **Accent Color**: Emerald (#10b981)
+- **Danger Color**: Red (#ef4444)
+- **Background**: Dark slate with glassmorphism effects
+- **Typography**: System fonts with tracking adjustments
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 👨‍💻 Author
+
+**Võ Trường Danh**
+- GitHub: [@VoTruongDanh](https://github.com/VoTruongDanh)
+
+## 🙏 Acknowledgments
+
+- Built with modern React best practices
+- Inspired by luxury casino aesthetics
+- Designed for Vietnamese Blackjack (Xi Dách) players
+
+---
+
+<p align="center">Made with ❤️ for the Xi Dách community</p>
