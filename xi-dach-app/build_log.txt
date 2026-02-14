@@ -1,0 +1,11 @@
+src/components/ActiveGame.tsx(5,16): error TS6133: 'RotateCcw' is declared but its value is never read.
+src/components/ActiveGame.tsx(5,27): error TS6133: 'Clock' is declared but its value is never read.
+src/components/ActiveGame.tsx(5,34): error TS6133: 'ArrowLeft' is declared but its value is never read.
+src/components/PlayerCard.tsx(2,10): error TS1484: 'Player' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/PlayerCard.tsx(4,31): error TS6133: 'Edit2' is declared but its value is never read.
+src/components/PlayerCard.tsx(4,38): error TS6133: 'MoreVertical' is declared but its value is never read.
+src/contexts/GameContext.tsx(2,10): error TS1484: 'GameEvent' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/contexts/GameContext.tsx(2,10): error TS6133: 'GameEvent' is declared but its value is never read.
+src/contexts/GameContext.tsx(2,21): error TS1484: 'GameState' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/contexts/GameContext.tsx(2,32): error TS1484: 'Player' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/contexts/GameContext.tsx(2,40): error TS1484: 'Transaction' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
