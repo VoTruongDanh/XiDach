@@ -24,6 +24,8 @@ export interface GameEvent {
 }
 
 export interface GameState {
-    currentEvent: GameEvent | null;
-    history: GameEvent[]; // Archived events
+    sessions: GameEvent[]; // All available game sessions
+    activeSessionId: string | null; // ID of the currently active session
+    currentEvent: GameEvent | null; // @deprecated - kept for temporary compat, but should use sessions.find(id === activeSessionId)
+    history: GameEvent[]; // Archived events (legacy)
 }

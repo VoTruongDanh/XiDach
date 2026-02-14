@@ -3,36 +3,48 @@ import { useGame } from '../contexts/GameContext';
 import { Layout } from './Layout';
 import { Play, Users } from 'lucide-react';
 
-export const EventSetup: React.FC = () => {
+interface EventSetupProps {
+    onCancel: () => void;
+    hasHistory: boolean;
+}
+
+export const EventSetup: React.FC<EventSetupProps> = ({ onCancel, hasHistory }) => {
     const { dispatch } = useGame();
 
     // Initialize state from localStorage if available
-    const [eventName, setEventName] = useState(() => localStorage.getItem('v2_setup_eventName') || '');
-    const [initialPlayers, setInitialPlayers] = useState(() => localStorage.getItem('v2_setup_initialPlayers') || '');
+    const [eventName, setEventName] = useState(() => localStorage.getItem('v3_setup_eventName') || '');
+    const [initialPlayers, setInitialPlayers] = useState(() => localStorage.getItem('v3_setup_initialPlayers') || '');
 
     // Save to localStorage whenever state changes
     React.useEffect(() => {
-        localStorage.setItem('v2_setup_eventName', eventName);
+        localStorage.setItem('v3_setup_eventName', eventName);
     }, [eventName]);
 
     React.useEffect(() => {
-        localStorage.setItem('v2_setup_initialPlayers', initialPlayers);
+        localStorage.setItem('v3_setup_initialPlayers', initialPlayers);
     }, [initialPlayers]);
 
     const handleStart = (e: React.FormEvent) => {
         e.preventDefault();
         if (!eventName.trim()) return;
 
-        // Start Event
-        dispatch({ type: 'START_EVENT', payload: { name: eventName } });
+        // Create Session
+        // Regex divides by newline or comma
+        const playersList = initialPlayers.split(/[\n,]+/).map(p => p.trim()).filter(Boolean);
 
-        // Add Players - Split by newline OR comma
-        // Regex: /[\n,]+/ handles both newlines and commas
-        const players = initialPlayers.split(/[\n,]+/).map(p => p.trim()).filter(Boolean);
-
-        players.forEach(name => {
-            dispatch({ type: 'ADD_PLAYER', payload: { name } });
+        dispatch({
+            type: 'CREATE_SESSION',
+            payload: {
+                name: eventName,
+                initialPlayers: playersList
+            }
         });
+
+        // Clear form for next time
+        setEventName('');
+        setInitialPlayers('');
+        localStorage.removeItem('v3_setup_eventName');
+        localStorage.removeItem('v3_setup_initialPlayers');
     };
 
     return (
@@ -70,14 +82,25 @@ export const EventSetup: React.FC = () => {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={!eventName.trim()}
-                        className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-slate-950 font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
-                    >
-                        <Play size={20} fill="currentColor" />
-                        START GAME
-                    </button>
+                    <div className="flex gap-3">
+                        {hasHistory && (
+                            <button
+                                type="button"
+                                onClick={onCancel}
+                                className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-4 rounded-xl transition-all"
+                            >
+                                Cancel
+                            </button>
+                        )}
+                        <button
+                            type="submit"
+                            disabled={!eventName.trim()}
+                            className="flex-[2] bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-slate-950 font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                        >
+                            <Play size={20} fill="currentColor" />
+                            CREATE TABLE
+                        </button>
+                    </div>
                 </form>
             </div>
         </Layout>

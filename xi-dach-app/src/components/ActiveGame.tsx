@@ -6,13 +6,13 @@ import { Plus, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ActiveGame: React.FC = () => {
-    const { state, dispatch } = useGame();
+    const { state, dispatch, activeSession } = useGame();
     const [showAddPlayer, setShowAddPlayer] = useState(false);
     const [newPlayerName, setNewPlayerName] = useState('');
 
-    if (!state.currentEvent) return null;
+    if (!activeSession) return null;
 
-    const { players, name } = state.currentEvent;
+    const { players, name } = activeSession;
 
     // Determine winners/losers
     const maxScore = Math.max(...players.map(p => p.currentScore));
@@ -36,16 +36,16 @@ export const ActiveGame: React.FC = () => {
                         <span className="text-primary-500">Event:</span> {name}
                     </h1>
                     <p className="text-slate-400 text-sm">
-                        Started at {new Date(state.currentEvent.createdAt).toLocaleTimeString()}
+                        Started at {new Date(activeSession.createdAt).toLocaleTimeString()}
                     </p>
                 </div>
 
                 <div className="flex gap-2">
                     <button
-                        onClick={() => dispatch({ type: 'RESET_EVENT' })}
+                        onClick={() => dispatch({ type: 'ACTIVATE_SESSION', payload: { sessionId: null } })}
                         className="bg-white/5 hover:bg-white/10 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
                     >
-                        <Save size={16} /> End & Save
+                        <Save size={16} /> Back to Dashboard
                     </button>
                 </div>
             </header>
@@ -62,7 +62,7 @@ export const ActiveGame: React.FC = () => {
             </div>
 
             {/* Player Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {players.map(player => (
                     <PlayerCard
                         key={player.id}

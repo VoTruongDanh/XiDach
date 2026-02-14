@@ -1,24 +1,25 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import type { GameState, Player, Transaction } from '../types';
+import type { GameState, Player, Transaction, GameEvent } from '../types';
 
 // --- Actions ---
 type Action =
-    | { type: 'START_EVENT'; payload: { name: string } }
+    | { type: 'CREATE_SESSION'; payload: { name: string; initialPlayers: string[] } }
+    | { type: 'ACTIVATE_SESSION'; payload: { sessionId: string | null } } // null to go to dashboard
+    | { type: 'DELETE_SESSION'; payload: { sessionId: string } }
     | { type: 'ADD_PLAYER'; payload: { name: string } }
     | { type: 'REMOVE_PLAYER'; payload: { playerId: string } }
     | { type: 'UPDATE_SCORE'; payload: { playerId: string; amount: number; note?: string } }
-    | { type: 'UNDO_TRANSACTION'; payload: { transactionId: string } }
-    | { type: 'RESET_EVENT' }
     | { type: 'LOAD_STATE'; payload: GameState };
 
 // --- Initial State ---
 const initialState: GameState = {
+    sessions: [],
+    activeSessionId: null,
     currentEvent: null,
     history: [],
 };
 
 // --- Helper: Calculate Scores ---
-// We re-calculate scores from transactions to ensure consistency
 const calculatePlayerScore = (playerId: string, transactions: Transaction[]): number => {
     return transactions
         .filter(t => t.playerId === playerId)
@@ -28,111 +29,104 @@ const calculatePlayerScore = (playerId: string, transactions: Transaction[]): nu
 // --- Reducer ---
 function gameReducer(state: GameState, action: Action): GameState {
     switch (action.type) {
-        case 'START_EVENT':
+        case 'CREATE_SESSION':
+            const newSession: GameEvent = {
+                id: crypto.randomUUID(),
+                name: action.payload.name,
+                createdAt: Date.now(),
+                players: action.payload.initialPlayers.map(name => ({
+                    id: crypto.randomUUID(),
+                    name: name.trim(),
+                    currentScore: 0
+                })),
+                transactions: [],
+                isActive: true,
+            };
             return {
                 ...state,
-                currentEvent: {
-                    id: crypto.randomUUID(),
-                    name: action.payload.name,
-                    createdAt: Date.now(),
-                    players: [],
-                    transactions: [],
-                    isActive: true,
-                },
+                sessions: [newSession, ...state.sessions],
+                activeSessionId: newSession.id, // Auto-activate
             };
 
-        case 'ADD_PLAYER':
-            if (!state.currentEvent) return state;
+        case 'ACTIVATE_SESSION':
+            return {
+                ...state,
+                activeSessionId: action.payload.sessionId,
+            };
+
+        case 'DELETE_SESSION':
+            return {
+                ...state,
+                sessions: state.sessions.filter(s => s.id !== action.payload.sessionId),
+                activeSessionId: state.activeSessionId === action.payload.sessionId ? null : state.activeSessionId,
+            };
+
+        // --- Game Actions (Apply to ACTIVE session) ---
+        case 'ADD_PLAYER': {
+            if (!state.activeSessionId) return state;
+
             const newPlayer: Player = {
                 id: crypto.randomUUID(),
                 name: action.payload.name,
                 currentScore: 0,
             };
-            return {
-                ...state,
-                currentEvent: {
-                    ...state.currentEvent,
-                    players: [...state.currentEvent.players, newPlayer],
-                },
-            };
-
-        case 'REMOVE_PLAYER':
-            if (!state.currentEvent) return state;
-            return {
-                ...state,
-                currentEvent: {
-                    ...state.currentEvent,
-                    players: state.currentEvent.players.filter(p => p.id !== action.payload.playerId),
-                    // We might want to keep transactions for history, or filter them out. 
-                    // For now, let's keep them but they won't be shown if player is gone.
-                },
-            };
-
-        case 'UPDATE_SCORE':
-            if (!state.currentEvent) return state;
-            const transaction: Transaction = {
-                id: crypto.randomUUID(),
-                playerId: action.payload.playerId,
-                amount: action.payload.amount,
-                note: action.payload.note,
-                timestamp: Date.now(),
-                type: 'SCORE_CHANGE',
-            };
-
-            const updatedTransactions = [...state.currentEvent.transactions, transaction];
-
-            const updatedPlayers = state.currentEvent.players.map(p => {
-                if (p.id === action.payload.playerId) {
-                    return { ...p, currentScore: p.currentScore + action.payload.amount };
-                }
-                return p;
-            });
 
             return {
                 ...state,
-                currentEvent: {
-                    ...state.currentEvent,
-                    players: updatedPlayers,
-                    transactions: updatedTransactions,
-                },
+                sessions: state.sessions.map(s => {
+                    if (s.id === state.activeSessionId) {
+                        return { ...s, players: [...s.players, newPlayer] };
+                    }
+                    return s;
+                })
             };
+        }
 
-        case 'UNDO_TRANSACTION':
-            if (!state.currentEvent) return state;
-            // Find transaction to undo
-            const txToUndo = state.currentEvent.transactions.find(t => t.id === action.payload.transactionId);
-            if (!txToUndo) return state;
+        case 'REMOVE_PLAYER': {
+            if (!state.activeSessionId) return state;
+            return {
+                ...state,
+                sessions: state.sessions.map(s => {
+                    if (s.id === state.activeSessionId) {
+                        return { ...s, players: s.players.filter(p => p.id !== action.payload.playerId) };
+                    }
+                    return s;
+                })
+            };
+        }
 
-            // Filter out the transaction
-            const remainingTransactions = state.currentEvent.transactions.filter(t => t.id !== action.payload.transactionId);
-
-            // Recalculate score for the affected player
-            const affectedPlayerScore = calculatePlayerScore(txToUndo.playerId, remainingTransactions);
-
-            const playersAfterUndo = state.currentEvent.players.map(p => {
-                if (p.id === txToUndo.playerId) {
-                    return { ...p, currentScore: affectedPlayerScore };
-                }
-                return p;
-            });
+        case 'UPDATE_SCORE': {
+            if (!state.activeSessionId) return state;
 
             return {
                 ...state,
-                currentEvent: {
-                    ...state.currentEvent,
-                    players: playersAfterUndo,
-                    transactions: remainingTransactions,
-                }
-            };
+                sessions: state.sessions.map(s => {
+                    if (s.id !== state.activeSessionId) return s;
 
-        case 'RESET_EVENT':
-            if (!state.currentEvent) return state;
-            const finishedEvent = { ...state.currentEvent, isActive: false };
-            return {
-                ...state,
-                history: [finishedEvent, ...state.history],
-                currentEvent: null,
+                    const transaction: Transaction = {
+                        id: crypto.randomUUID(),
+                        playerId: action.payload.playerId,
+                        amount: action.payload.amount,
+                        note: action.payload.note,
+                        timestamp: Date.now(),
+                        type: 'SCORE_CHANGE',
+                    };
+
+                    const updatedPlayers = s.players.map(p => {
+                        if (p.id === action.payload.playerId) {
+                            return { ...p, currentScore: p.currentScore + action.payload.amount };
+                        }
+                        return p;
+                    });
+
+                    return {
+                        ...s,
+                        players: updatedPlayers,
+                        transactions: [...s.transactions, transaction]
+                    };
+                })
             };
+        }
 
         case 'LOAD_STATE':
             return action.payload;
@@ -146,15 +140,15 @@ function gameReducer(state: GameState, action: Action): GameState {
 interface GameContextType {
     state: GameState;
     dispatch: React.Dispatch<Action>;
+    activeSession: GameEvent | undefined;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 // --- Provider ---
-const STORAGE_KEY = 'xi-dach-pro-state';
+const STORAGE_KEY = 'xi-dach-pro-state-v3'; // Increment version to force fresh start
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // Lazy initialization to load state immediately and avoid overwriting with empty state
     const [state, dispatch] = useReducer(gameReducer, initialState, (defaultState) => {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -165,19 +159,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     });
 
-    // Save to local storage on change
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }, [state]);
 
-
-    // Save to local storage on change
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [state]);
+    const activeSession = state.sessions.find(s => s.id === state.activeSessionId);
 
     return (
-        <GameContext.Provider value={{ state, dispatch }}>
+        <GameContext.Provider value={{ state, dispatch, activeSession }}>
             {children}
         </GameContext.Provider>
     );
