@@ -9,6 +9,7 @@ type Action =
     | { type: 'ADD_PLAYER'; payload: { name: string } }
     | { type: 'REMOVE_PLAYER'; payload: { playerId: string } }
     | { type: 'UPDATE_SCORE'; payload: { playerId: string; amount: number; note?: string } }
+    | { type: 'RESET_PLAYER_SCORE'; payload: { playerId: string } }
     | { type: 'LOAD_STATE'; payload: GameState };
 
 // --- Initial State ---
@@ -118,6 +119,25 @@ function gameReducer(state: GameState, action: Action): GameState {
                         ...s,
                         players: updatedPlayers,
                         transactions: [...s.transactions, transaction]
+                    };
+                })
+            };
+        }
+
+        case 'RESET_PLAYER_SCORE': {
+            if (!state.activeSessionId) return state;
+            return {
+                ...state,
+                sessions: state.sessions.map(s => {
+                    if (s.id !== state.activeSessionId) return s;
+                    return {
+                        ...s,
+                        players: s.players.map(p => {
+                            if (p.id === action.payload.playerId) {
+                                return { ...p, currentScore: 0 };
+                            }
+                            return p;
+                        })
                     };
                 })
             };

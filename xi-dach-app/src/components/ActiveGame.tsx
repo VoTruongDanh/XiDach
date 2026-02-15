@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { Layout } from './Layout';
 import { PlayerCard } from './PlayerCard';
-import { Plus, Save } from 'lucide-react';
+import { Plus, Save, Lock, Unlock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ActiveGame: React.FC = () => {
     const { dispatch, activeSession } = useGame();
     const [showAddPlayer, setShowAddPlayer] = useState(false);
     const [newPlayerName, setNewPlayerName] = useState('');
+    const [isLocked, setIsLocked] = useState(false);
 
     if (!activeSession) return null;
 
@@ -42,10 +43,20 @@ export const ActiveGame: React.FC = () => {
 
                 <div className="flex gap-2">
                     <button
+                        onClick={() => setIsLocked(!isLocked)}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium ${isLocked
+                                ? 'bg-danger-500/20 text-danger-400 ring-1 ring-danger-500/50'
+                                : 'bg-white/5 hover:bg-white/10 text-slate-300'
+                            }`}
+                    >
+                        {isLocked ? <Lock size={16} /> : <Unlock size={16} />}
+                        {isLocked ? 'Locked 🔒' : 'Lock'}
+                    </button>
+                    <button
                         onClick={() => dispatch({ type: 'ACTIVATE_SESSION', payload: { sessionId: null } })}
                         className="bg-white/5 hover:bg-white/10 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
                     >
-                        <Save size={16} /> Back to Dashboard
+                        <Save size={16} /> Back
                     </button>
                 </div>
             </header>
@@ -69,6 +80,7 @@ export const ActiveGame: React.FC = () => {
                         player={player}
                         isWinner={players.length > 1 && player.currentScore === maxScore && maxScore > 0}
                         isLoser={players.length > 1 && player.currentScore === minScore && minScore < 0}
+                        isLocked={isLocked}
                     />
                 ))}
 
