@@ -10,9 +10,10 @@ interface PlayerCardProps {
     isWinner?: boolean;
     isLoser?: boolean;
     isLocked?: boolean;
+    scoreButtons: number[];
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLoser, isLocked }) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLoser, isLocked, scoreButtons }) => {
     const { dispatch } = useGame();
     const [showCustomInput, setShowCustomInput] = useState(false);
     const [customAmount, setCustomAmount] = useState('');
@@ -36,7 +37,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLose
     const handleReset = () => {
         if (isLocked) return;
         if (player.currentScore === 0) return;
-        if (window.confirm(`Reset "${player.name}" score to 0?`)) {
+        if (window.confirm(`Reset "${player.name}" về 0?`)) {
             dispatch({ type: 'RESET_PLAYER_SCORE', payload: { playerId: player.id } });
         }
     };
@@ -53,7 +54,6 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLose
                 isLocked && "opacity-60 pointer-events-none select-none"
             )}
         >
-            {/* Background Gradient for Winner */}
             {isWinner && (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent pointer-events-none" />
             )}
@@ -64,7 +64,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLose
                 <div className="flex gap-1.5 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={handleReset}
-                        title="Reset score to 0"
+                        title="Reset về 0"
                         className="text-slate-500 hover:text-primary-500 transition-colors"
                     >
                         <RotateCcw size={14} />
@@ -93,43 +93,30 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLose
                 </motion.div>
             </div>
 
-            {/* Actions */}
+            {/* Score Buttons - Dynamic from settings */}
             <div className="grid grid-cols-2 gap-1.5 md:gap-2 relative z-10">
-                <button
-                    onClick={() => handleScore(1)}
-                    className="bg-accent-500/10 hover:bg-accent-500/20 text-accent-500 font-bold py-2 md:py-3 rounded-lg flex items-center justify-center gap-0.5 transition-colors text-xs md:text-base"
-                >
-                    <Plus size={12} className="md:w-4 md:h-4" /> 1
-                </button>
-                <button
-                    onClick={() => handleScore(-1)}
-                    className="bg-danger-500/10 hover:bg-danger-500/20 text-danger-500 font-bold py-2 md:py-3 rounded-lg flex items-center justify-center gap-0.5 transition-colors text-xs md:text-base"
-                >
-                    <Minus size={12} className="md:w-4 md:h-4" /> 1
-                </button>
+                {scoreButtons.map((val, i) => (
+                    <button
+                        key={i}
+                        onClick={() => handleScore(val)}
+                        className={cn(
+                            "font-bold py-2 md:py-3 rounded-lg flex items-center justify-center gap-0.5 transition-colors text-xs md:text-base",
+                            val > 0
+                                ? "bg-accent-500/10 hover:bg-accent-500/20 text-accent-500"
+                                : "bg-danger-500/10 hover:bg-danger-500/20 text-danger-500"
+                        )}
+                    >
+                        {val > 0 ? <Plus size={12} className="md:w-4 md:h-4" /> : <Minus size={12} className="md:w-4 md:h-4" />}
+                        {Math.abs(val)}
+                    </button>
+                ))}
+            </div>
 
-                <button
-                    onClick={() => handleScore(2)}
-                    className="bg-accent-500/10 hover:bg-accent-500/20 text-accent-500 font-bold py-2 md:py-3 rounded-lg flex items-center justify-center gap-0.5 transition-colors text-xs md:text-base"
-                >
-                    <Plus size={12} className="md:w-4 md:h-4" /> 2
-                </button>
-                <button
-                    onClick={() => handleScore(-2)}
-                    className="bg-danger-500/10 hover:bg-danger-500/20 text-danger-500 font-bold py-2 md:py-3 rounded-lg flex items-center justify-center gap-0.5 transition-colors text-xs md:text-base"
-                >
-                    <Minus size={12} className="md:w-4 md:h-4" /> 2
-                </button>
-
-                <button
-                    onClick={() => handleScore(10)}
-                    className="col-span-1 bg-white/5 hover:bg-white/10 text-slate-300 font-medium py-1.5 md:py-2 rounded-lg text-xs md:text-sm transition-colors"
-                >
-                    +10
-                </button>
+            {/* Custom - separate row */}
+            <div className="mt-1.5 md:mt-2 relative z-10">
                 <button
                     onClick={() => !isLocked && setShowCustomInput(!showCustomInput)}
-                    className="col-span-1 bg-white/5 hover:bg-white/10 text-slate-300 font-medium py-1.5 md:py-2 rounded-lg text-xs md:text-sm transition-colors"
+                    className="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-medium py-1.5 md:py-2 rounded-lg text-xs md:text-sm transition-colors"
                 >
                     Custom
                 </button>
@@ -149,7 +136,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isWinner, isLose
                                 type="number"
                                 value={customAmount}
                                 onChange={(e) => setCustomAmount(e.target.value)}
-                                placeholder="Amount"
+                                placeholder="Nhập số điểm..."
                                 className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-primary-500"
                                 autoFocus
                             />
